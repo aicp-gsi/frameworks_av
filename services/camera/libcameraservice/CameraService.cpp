@@ -186,7 +186,7 @@ status_t CameraService::enumerateProviders() {
     for (auto& cameraId : deviceIds) {
         String8 id8 = String8(cameraId.c_str());
 
-#ifdef CAMERA_NEEDS_ADD_STATES_IN_ENUMERATE
+    if (property_get_bool("persist.sys.camera.huawei", false)) {
         bool cameraFound = false;
         {
             Mutex::Autolock lock(mCameraStatesLock);
@@ -198,7 +198,7 @@ status_t CameraService::enumerateProviders() {
         if (!cameraFound) {
             addStates(id8);
         }
-#endif
+    }
 
         onDeviceStatusChanged(id8, CameraDeviceStatus::PRESENT);
     }
@@ -298,10 +298,17 @@ void CameraService::onDeviceStatusChanged(const String8& id,
             ALOGI("%s: Unknown camera ID %s, a new camera is added",
                     __FUNCTION__, id.string());
 
+<<<<<<< HEAD
 #ifndef CAMERA_NEEDS_ADD_STATES_IN_ENUMERATE
             // First add as absent to make sure clients are notified below
             addStates(id);
 #endif
+=======
+   if (!property_get_bool("persist.sys.camera.huawei", false)) {
+            // First add as absent to make sure clients are notified below
+            addStates(id);
+   }
+>>>>>>> 6b481b7... CameraService: Support calling addStates in enumerateProviders
 
             updateStatus(newStatus, id);
         } else {
